@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socrates AI - Philosophical Dialogue</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Socrates AI</h1>
+            <p class="subtitle">Explore ideas through Socratic dialogue</p>
+        </header>
+
+        <main>
+            <div class="chat-container">
+                {% if error %}
+                <div class="error-message">
+                    <strong>Error:</strong> {{ error }}
+                </div>
+                {% endif %}
+
+                {% if message and response %}
+                <div class="dialogue-history">
+                    <div class="message user-message">
+                        <strong>You:</strong> {{ message }}
+                    </div>
+                    <div class="message socrates-message">
+                        <strong>Socrates:</strong> {{ response }}
+                    </div>
+                    {% if processed_input %}
+                    <details class="analysis">
+                        <summary>Input Analysis</summary>
+                        <ul>
+                            <li>Question detected: {{ processed_input.is_question }}</li>
+                            <li>Word count: {{ processed_input.word_count }}</li>
+                            <li>Key concepts: {{ processed_input.filtered_tokens[:10] | join(', ') }}</li>
+                        </ul>
+                    </details>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="/dialogue" class="input-form">
+                    <textarea 
+                        name="message" 
+                        placeholder="Share your thoughts or ask a question..."
+                        rows="4"
+                        required
+                    ></textarea>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+
+            <div class="info-section">
+                <h2>About Socratic Dialogue</h2>
+                <p>The Socratic method is a form of cooperative dialogue that stimulates critical thinking through asking and answering questions. This AI assistant uses this method to help you explore ideas more deeply.</p>
+                
+                <h3>Try asking about:</h3>
+                <ul>
+                    <li>The nature of knowledge and truth</li>
+                    <li>Ethics and moral principles</li>
+                    <li>The meaning of concepts like justice, beauty, or courage</li>
+                    <li>Your beliefs and assumptions about life</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by Advanced LLM Technology</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

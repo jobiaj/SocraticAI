@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Post-compile hook for Heroku to download NLTK data
+
+echo "-----> Downloading NLTK data packages"
+
+# Create NLTK data directory
+mkdir -p /app/nltk_data
+
+# Download required NLTK data
+python -m nltk.downloader -d /app/nltk_data punkt
+python -m nltk.downloader -d /app/nltk_data punkt_tab
+python -m nltk.downloader -d /app/nltk_data wordnet
+python -m nltk.downloader -d /app/nltk_data stopwords
+python -m nltk.downloader -d /app/nltk_data averaged_perceptron_tagger
+python -m nltk.downloader -d /app/nltk_data averaged_perceptron_tagger_eng
+
+echo "-----> NLTK data download complete"
