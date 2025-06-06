@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Heroku Deployment Script for Socrates AI with Google Gemini
+# Heroku Deployment Script for Socrates AI with Multiple LLM Providers
 # This script automates the deployment process to Heroku
+# Supports: Anthropic Claude, OpenAI GPT, and Google Gemini
 
 set -e  # Exit on error
 
@@ -63,48 +64,162 @@ fi
 print_status "Setting up Git remote..."
 heroku git:remote -a "$APP_NAME" 2>/dev/null || true
 
-# Get Google API key
+# Select LLM Provider
 echo ""
-echo "Google Gemini API Configuration"
-echo "------------------------------"
-read -p "Enter your Google API key: " GOOGLE_API_KEY
+echo "LLM Provider Selection"
+echo "---------------------"
+echo "1. Anthropic Claude"
+echo "2. OpenAI GPT"
+echo "3. Google Gemini"
+read -p "Select your LLM provider (1-3): " PROVIDER_CHOICE
 
-if [ -z "$GOOGLE_API_KEY" ]; then
-    print_error "Google API key is required!"
-    exit 1
-fi
-
-# Ask for model preference
-echo ""
-echo "Available Gemini models:"
-echo "1. gemini-1.5-flash (recommended - fast and stable)"
-echo "2. gemini-2.5-pro-preview-05-06 (more capable but slower)"
-echo "3. gemini-pro (legacy model)"
-echo "4. Custom model name"
-read -p "Select model (1-4) [1]: " MODEL_CHOICE
-
-case $MODEL_CHOICE in
+case $PROVIDER_CHOICE in
+    1)
+        LLM_PROVIDER="anthropic"
+        echo ""
+        echo "Anthropic Claude Configuration"
+        echo "------------------------------"
+        read -p "Enter your Anthropic API key: " API_KEY
+        
+        if [ -z "$API_KEY" ]; then
+            print_error "Anthropic API key is required!"
+            exit 1
+        fi
+        
+        # Ask for Claude model preference
+        echo ""
+        echo "Available Claude models:"
+        echo "1. claude-3-5-sonnet-20241022 (recommended - most capable)"
+        echo "2. claude-3-opus-20240229 (powerful, higher cost)"
+        echo "3. claude-3-sonnet-20240229 (balanced)"
+        echo "4. claude-3-haiku-20240307 (fast and affordable)"
+        echo "5. Custom model name"
+        read -p "Select model (1-5) [1]: " MODEL_CHOICE
+        
+        case $MODEL_CHOICE in
+            2)
+                MODEL_NAME="claude-3-opus-20240229"
+                ;;
+            3)
+                MODEL_NAME="claude-3-sonnet-20240229"
+                ;;
+            4)
+                MODEL_NAME="claude-3-haiku-20240307"
+                ;;
+            5)
+                read -p "Enter custom model name: " MODEL_NAME
+                ;;
+            *)
+                MODEL_NAME="claude-3-5-sonnet-20241022"
+                ;;
+        esac
+        ;;
+        
     2)
-        GOOGLE_MODEL="gemini-2.5-pro-preview-05-06"
+        LLM_PROVIDER="openai"
+        echo ""
+        echo "OpenAI GPT Configuration"
+        echo "------------------------"
+        read -p "Enter your OpenAI API key: " API_KEY
+        
+        if [ -z "$API_KEY" ]; then
+            print_error "OpenAI API key is required!"
+            exit 1
+        fi
+        
+        # Ask for GPT model preference
+        echo ""
+        echo "Available GPT models:"
+        echo "1. gpt-4-turbo-preview (recommended - most capable)"
+        echo "2. gpt-4 (stable, powerful)"
+        echo "3. gpt-3.5-turbo (fast and affordable)"
+        echo "4. gpt-4-32k (for longer contexts)"
+        echo "5. Custom model name"
+        read -p "Select model (1-5) [1]: " MODEL_CHOICE
+        
+        case $MODEL_CHOICE in
+            2)
+                MODEL_NAME="gpt-4"
+                ;;
+            3)
+                MODEL_NAME="gpt-3.5-turbo"
+                ;;
+            4)
+                MODEL_NAME="gpt-4-32k"
+                ;;
+            5)
+                read -p "Enter custom model name: " MODEL_NAME
+                ;;
+            *)
+                MODEL_NAME="gpt-4-turbo-preview"
+                ;;
+        esac
         ;;
+        
     3)
-        GOOGLE_MODEL="gemini-pro"
+        LLM_PROVIDER="google"
+        echo ""
+        echo "Google Gemini Configuration"
+        echo "---------------------------"
+        read -p "Enter your Google API key: " API_KEY
+        
+        if [ -z "$API_KEY" ]; then
+            print_error "Google API key is required!"
+            exit 1
+        fi
+        
+        # Ask for Gemini model preference
+        echo ""
+        echo "Available Gemini models:"
+        echo "1. gemini-1.5-flash (recommended - fast and stable)"
+        echo "2. gemini-2.5-pro-preview-05-06 (more capable but slower)"
+        echo "3. gemini-pro (legacy model)"
+        echo "4. Custom model name"
+        read -p "Select model (1-4) [1]: " MODEL_CHOICE
+        
+        case $MODEL_CHOICE in
+            2)
+                MODEL_NAME="gemini-2.5-pro-preview-05-06"
+                ;;
+            3)
+                MODEL_NAME="gemini-pro"
+                ;;
+            4)
+                read -p "Enter custom model name: " MODEL_NAME
+                ;;
+            *)
+                MODEL_NAME="gemini-1.5-flash"
+                ;;
+        esac
         ;;
-    4)
-        read -p "Enter custom model name: " GOOGLE_MODEL
-        ;;
+        
     *)
-        GOOGLE_MODEL="gemini-1.5-flash"
+        print_error "Invalid choice! Please select 1, 2, or 3."
+        exit 1
         ;;
 esac
 
-print_status "Selected model: $GOOGLE_MODEL"
+print_status "Selected provider: $LLM_PROVIDER"
+print_status "Selected model: $MODEL_NAME"
 
-# Set environment variables
+# Set environment variables based on provider
 print_status "Setting environment variables..."
-heroku config:set LLM_PROVIDER=google -a "$APP_NAME"
-heroku config:set GOOGLE_API_KEY="$GOOGLE_API_KEY" -a "$APP_NAME"
-heroku config:set GOOGLE_MODEL="$GOOGLE_MODEL" -a "$APP_NAME"
+heroku config:set LLM_PROVIDER="$LLM_PROVIDER" -a "$APP_NAME"
+
+case $LLM_PROVIDER in
+    anthropic)
+        heroku config:set ANTHROPIC_API_KEY="$API_KEY" -a "$APP_NAME"
+        heroku config:set ANTHROPIC_MODEL="$MODEL_NAME" -a "$APP_NAME"
+        ;;
+    openai)
+        heroku config:set OPENAI_API_KEY="$API_KEY" -a "$APP_NAME"
+        heroku config:set OPENAI_MODEL="$MODEL_NAME" -a "$APP_NAME"
+        ;;
+    google)
+        heroku config:set GOOGLE_API_KEY="$API_KEY" -a "$APP_NAME"
+        heroku config:set GOOGLE_MODEL="$MODEL_NAME" -a "$APP_NAME"
+        ;;
+esac
 
 # Set Python runtime
 print_status "Setting Python runtime..."
