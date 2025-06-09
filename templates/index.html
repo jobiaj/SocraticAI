@@ -36,6 +36,9 @@
                             <li>Question detected: {{ processed_input.is_question }}</li>
                             <li>Word count: {{ processed_input.word_count }}</li>
                             <li>Key concepts: {{ processed_input.filtered_tokens[:10] | join(', ') }}</li>
+                            {% if category %}
+                            <li>Category: <strong>{{ category }}</strong> - {{ category_description }}</li>
+                            {% endif %}
                         </ul>
                     </details>
                     {% endif %}

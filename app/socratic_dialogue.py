@@ -21,6 +21,7 @@ Analysis of user's input:
 - Is a question: {is_question}
 - Key concepts: {key_concepts}
 - Word count: {word_count}
+{category_info}
 
 {context_info}
 
@@ -30,7 +31,9 @@ Please respond as Socrates would, focusing on helping the user explore their tho
         self, 
         message: str, 
         processed_input: Dict,
-        context: Optional[str] = None
+        context: Optional[str] = None,
+        category: Optional[str] = None,
+        category_description: Optional[str] = None
     ) -> str:
         key_concepts = ', '.join(processed_input['filtered_tokens'][:10])
         
@@ -38,11 +41,16 @@ Please respond as Socrates would, focusing on helping the user explore their tho
         if context:
             context_info = f"Previous context: {context}"
         
+        category_info = ""
+        if category and category_description:
+            category_info = f"\n- Philosophical category: {category} - {category_description}"
+        
         prompt = self.socratic_prompt_template.format(
             message=message,
             is_question=processed_input['is_question'],
             key_concepts=key_concepts,
             word_count=processed_input['word_count'],
+            category_info=category_info,
             context_info=context_info
         )
         

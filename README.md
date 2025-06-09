@@ -170,6 +170,43 @@ docker run -p 8000:8000 --env-file .env socrates-ai
 - `GOOGLE_API_KEY`: Your Google API key (if using Gemini)
 - `GOOGLE_MODEL`: Google model to use (recommended: gemini-1.5-flash, gemini-1.5-pro, or gemini-pro)
 
+## Machine Learning Model Training
+
+The application includes a philosophical question categorizer that uses machine learning to classify user questions into different philosophical domains (Ethics, Metaphysics, Epistemology, etc.).
+
+### When to Train the Model
+
+The model training should be executed in the following scenarios:
+
+1. **Initial Setup**: When first setting up the application, if the model files don't exist in the `models/` directory
+2. **Model Updates**: When you want to improve the categorization by updating the training data or algorithm
+3. **After Major Changes**: After modifying the philosophical categories or training examples in `app/ml_categorizer.py`
+
+### Training the Model
+
+To train or retrain the categorizer model:
+
+```bash
+python train_categorizer.py
+```
+
+This command will:
+- Generate training data from philosophical examples
+- Train a Decision Tree classifier
+- Save the model files to the `models/` directory:
+  - `models/philosophy_categorizer.pkl` - The trained classifier
+  - `models/tfidf_vectorizer.pkl` - The text vectorizer
+- Display test predictions to verify the model is working
+
+### Automatic Model Loading
+
+When the application starts:
+- It automatically attempts to load the pre-trained model from the `models/` directory
+- If the model files are not found, it will automatically train a new model
+- This ensures the app always has a working categorizer, even on first run
+
+**Note**: The pre-trained model files are included in the repository, so manual training is typically not required unless you want to update or improve the model.
+
 ## Project Structure
 
 ```
@@ -179,12 +216,17 @@ socrates-app/
 │   ├── main.py              # FastAPI application
 │   ├── llm_service.py       # LLM API integration
 │   ├── nlp_processor.py     # NLP processing logic
-│   └── socratic_dialogue.py # Socratic method implementation
+│   ├── socratic_dialogue.py # Socratic method implementation
+│   └── ml_categorizer.py    # ML categorizer for philosophical questions
+├── models/
+│   ├── philosophy_categorizer.pkl  # Trained ML model
+│   └── tfidf_vectorizer.pkl       # Text vectorizer
 ├── static/
 │   ├── style.css           # CSS styles
 │   └── script.js           # Frontend JavaScript
 ├── templates/
 │   └── index.html          # HTML template
+├── train_categorizer.py    # Script to train the ML model
 ├── requirements.txt        # Python dependencies
 ├── .env.example           # Environment variables template
 └── README.md              # This file

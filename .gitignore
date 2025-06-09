@@ -20,6 +20,9 @@ pip-delete-this-directory.txt
 # NLTK data (will be downloaded during deployment)
 nltk_data/
 
+# ML models (will be trained during deployment)
+models/
+
 # IDE
 .vscode/
 .idea/
