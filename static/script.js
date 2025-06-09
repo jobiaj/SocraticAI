@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (textarea.value.trim() === '') {
             e.preventDefault();
-            alert('Please enter a message before sending.');
+            alert('Please enter a question to begin your learning journey.');
             return;
         }
         
         button.disabled = true;
-        button.textContent = 'Thinking...';
+        button.textContent = 'Exploring...';
     });
     
     textarea.addEventListener('keydown', function(e) {
