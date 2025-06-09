@@ -288,6 +288,4 @@ If you encounter errors with Google Gemini like "Invalid operation: The response
 2. Use a different model like `gemini-1.5-flash` or `gemini-1.5-pro`
 3. Switch to a different LLM provider (Anthropic or OpenAI)
 
-## License
-
-MIT License
+Application is deployed here: https://socrates-ai-app-1711abfba870.herokuapp.com/
